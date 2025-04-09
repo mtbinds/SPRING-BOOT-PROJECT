@@ -1,9 +1,11 @@
 pipeline {
-
+  
+  /*
   tools {
         // Specify the name of the Maven installation defined in Jenkins
         maven 'Maven'
    }
+  */
 
   environment {
     dockerimagename = "aacountname/spring-boot-k8s"
