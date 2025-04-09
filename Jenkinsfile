@@ -1,10 +1,7 @@
 pipeline {
-  agent any
-  triggers {
-    pollSCM('*/1 * * * *')
-  }
-  options {
-    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+  
+  agent {
+        label ‘main-host’
   }
 
   stages {
