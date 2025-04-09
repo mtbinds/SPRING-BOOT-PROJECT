@@ -24,8 +24,8 @@ pipeline {
     */
     stage('Deploy'){
       steps{
-        sh '''kubectl apply -f master-deployment.yaml
-              kubectl rollout restart deployment second-app-deployment
+        sh '''kubectl apply -f /templates/deployment.yaml
+        kubectl apply -f /templates/service.yaml
         '''
     }
     }
