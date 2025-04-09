@@ -1,49 +1,47 @@
 pipeline {
-  
-  agent any
+    agent any
 
-  triggers {
-    pollSCM('*/1 * * * *')
-  }
-  options {
-    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
-  }
-
- 
-  stages {
-    /*
-    stage('Clone and Checkout') {
-      steps {
-        git 'https://github.com/mtbinds/SPRING-BOOT-PROJECT.git'
-      }
-    }
-    */
-
-    stage('build docker image') {
-      steps {
-        sh '''cd MyApi
-        docker build -t myapi:latest .'''
-      }
+    triggers {
+        pollSCM('*/1 * * * *') // Vérifie le SCM toutes les minutes
     }
 
-    /*
-    stage('push docker image') {
-      steps {
-        script {
-          //withCredentials([string(credentialsId: 'dockerhub_token', variable: 'dockerhub_token')]) {
-          //sh 'docker login -u amitchavda00 -p ${dockerhub_token}'
-          sh 'docker push amitchavda00/spring-crud-jenkins-pipeline:latest'
-          //}
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+
+    environment {
+        DOCKER_IMAGE_NAME = 'madjidtaoualit/myapi' // remplace avec ton nom d'utilisateur Docker Hub
+        IMAGE_TAG = 'latest'
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                dir('MyApi') {
+                    sh 'docker build -t $DOCKER_IMAGE_NAME:$IMAGE_TAG .'
+                }
+            }
         }
-      }
-    }
-    */
 
-    stage('deploy in kubernetes') {
-      steps {
-        sh '''microk8s kubectl apply -f deployment.yaml
-            microk8s kubectl apply -f service.yaml'''
-      }
+        stage('Push Docker Image') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub_credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    sh '''
+                        echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                        docker push $DOCKER_IMAGE_NAME:$IMAGE_TAG
+                        docker logout
+                    '''
+                }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh '''
+                    microk8s kubectl apply -f deployment.yaml
+                    microk8s kubectl apply -f service.yaml
+                '''
+            }
+        }
     }
-  }
 }

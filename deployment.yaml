@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: myapi
-        image: myapi:latest
+        image: madjidtaoualit/myapi:latest
         imagePullPolicy: Never
         ports:
         - containerPort: 80
