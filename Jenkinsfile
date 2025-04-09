@@ -8,8 +8,7 @@ pipeline {
     }
     stage('build'){
       steps{
-        sh '''cd docker
-        docker build -t react .'''
+        sh '''docker build -t react .'''
       }
     }
 
