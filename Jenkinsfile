@@ -1,10 +1,6 @@
 pipeline {
   
-  agent {
-        label ‘main-host’
-  }
-
-
+  agent any
 
   triggers {
     pollSCM('*/1 * * * *')
