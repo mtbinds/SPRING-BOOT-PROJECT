@@ -1,11 +1,6 @@
 pipeline {
+  
   agent any
-  triggers {
-    pollSCM('*/1 * * * *')
-  }
-  options {
-    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
-  }
 
   stages {
 
@@ -16,7 +11,7 @@ pipeline {
       }
     }
     */
-    
+
     stage('Compile') {
       steps {
         bat "mvn clean compile"
