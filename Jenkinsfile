@@ -8,11 +8,13 @@ pipeline {
   }
 
   stages {
+    /*
     stage('Clone and Checkout') {
       steps {
         git 'https://github.com/mtbinds/SPRING-BOOT-PROJECT.git'
       }
     }
+    */
     stage('Compile') {
       steps {
         bat "mvn clean compile"
