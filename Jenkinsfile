@@ -1,48 +1,61 @@
 pipeline {
-
   agent any
-
-  tools {
-    maven 'Maven' // Assure-toi que ce nom correspond bien à l'installation Maven dans Jenkins
+  triggers {
+    pollSCM('*/1 * * * *')
   }
-
-  environment {
-    dockerimagename = "spring-boot-k8s"
+  options {
+    buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
   }
 
   stages {
-
-    stage('Build App') {
+    stage('Clone and Checkout') {
       steps {
-        sh 'mvn clean package -DskipTests'
+        git 'https://github.com/mtbinds/SPRING-BOOT-PROJECT.git'
       }
     }
-
-/*
-    stage('Build Docker Image') {
+    stage('Compile') {
+      steps {
+        bat "mvn clean compile"
+      }
+    }
+    stage('Test') {
+      steps {
+        bat "mvn test"
+      }
+    }
+    stage('Package') {
+      steps {
+        bat "mvn package"
+      }
+    }
+    stage('Install') {
+      steps {
+        bat "mvn install"
+      }
+    }
+    stage('build docker image') {
+      steps {
+        bat 'docker build -t spring-crud-jenkins-pipeline:latest .'
+      }
+    }
+    
+    /*
+    stage('push docker image') {
       steps {
         script {
-          dockerImage = docker.build("${env.dockerimagename}:latest")
+          //withCredentials([string(credentialsId: 'dockerhub_token', variable: 'dockerhub_token')]) {
+          //bat 'docker login -u amitchavda00 -p ${dockerhub_token}'
+          bat 'docker push amitchavda00/spring-crud-jenkins-pipeline:latest'
+          //}
         }
       }
     }
-*/
-    stage('Deploy to Kubernetes') {
+    */
+
+    stage('deploy in kubernetes') {
       steps {
-        script {
-          sh 'kubectl apply -f deployment-k8s.yaml'
-        }
+        bat 'kubectl apply -f user-api-service.yaml'
       }
-    }
-
-  }
-
-  post {
-    success {
-      echo 'Déploiement réussi sur le cluster Docker Desktop Kubernetes !'
-    }
-    failure {
-      echo 'Le déploiement a échoué.'
     }
   }
 }
