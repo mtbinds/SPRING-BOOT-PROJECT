@@ -15,29 +15,11 @@ pipeline {
       }
     }
     */
-    stage('Compile') {
-      steps {
-        sh "mvn clean compile"
-      }
-    }
-    stage('Test') {
-      steps {
-        sh "mvn test"
-      }
-    }
-    stage('Package') {
-      steps {
-        sh "mvn package"
-      }
-    }
-    stage('Install') {
-      steps {
-        sh "mvn install"
-      }
-    }
+
     stage('build docker image') {
       steps {
-        sh 'docker build -t amitchavda00/spring-crud-jenkins-pipeline:latest .'
+        sh 'cd MyApi
+        docker build -t myapi:latest .'
       }
     }
 
@@ -56,7 +38,8 @@ pipeline {
 
     stage('deploy in kubernetes') {
       steps {
-        sh 'kubectl apply -f user-api-service.yaml'
+        sh 'kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml'
       }
     }
   }
