@@ -18,8 +18,8 @@ pipeline {
 
     stage('build docker image') {
       steps {
-        sh 'cd MyApi
-        docker build -t myapi:latest .'
+        sh '''cd MyApi
+        docker build -t myapi:latest .'''
       }
     }
 
@@ -38,8 +38,8 @@ pipeline {
 
     stage('deploy in kubernetes') {
       steps {
-        sh 'kubectl apply -f deployment.yaml
-            kubectl apply -f service.yaml'
+        sh '''kubectl apply -f deployment.yaml
+            kubectl apply -f service.yaml'''
       }
     }
   }
