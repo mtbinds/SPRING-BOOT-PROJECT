@@ -1,67 +1,52 @@
 pipeline {
-  
-  /*
-  tools {
-        // Specify the name of the Maven installation defined in Jenkins
-        maven 'Maven'
-   }
-  */
-
-  environment {
-    dockerimagename = "aacountname/spring-boot-k8s"
-    dockerImage = ""
-  }
 
   agent any
 
+  tools {
+    // Nom de l'installation Maven définie dans Jenkins
+    maven 'Maven'
+  }
+
+  environment {
+    dockerimagename = "spring-boot-k8s"
+    dockerImage = ""
+  }
+
   stages {
-    
-    /*
+
     stage('Build App') {
-        steps {
-            // Build your Spring Boot application
-            sh 'mvn clean package' // Adjust your build command
-        }
+      steps {
+        sh 'mvn clean package'
+      }
     }
-    
-    stage('Build image') {
-      steps{
+
+    stage('Build Docker Image') {
+      steps {
         script {
-          dockerImage = docker.build dockerimagename
+          dockerImage = docker.build("${dockerimagename}:latest")
         }
       }
     }
 
-    stage('Pushing Image') {
-      environment {
-               registryCredential = 'dockerhub-credentials'
-           }
-      steps{
-        script {
-          docker.withRegistry( 'https://registry.hub.docker.com', registryCredential ) {
-            dockerImage.push("latest")
-          }
-        }
-      }
-    }
-    */
     stage('Deploy to Kubernetes') {
-      steps{
-          //withKubeConfig([credentialsId: 'mykubeconfig', serverUrl: 'https://192.168.49.2:8443']) {
-            sh 'kubectl apply -f deployment-k8s.yaml'
-          //}
+      steps {
+        script {
+          // Vérifie que kubectl pointe vers le bon cluster
+          sh 'kubectl config use-context docker-desktop'
+          // Applique les ressources Kubernetes
+          sh 'kubectl apply -f deployment-k8s.yaml'
+        }
       }
     }
 
   }
 
   post {
-      success {
-          echo 'Deployment successful!'
-      }
-      failure {
-          echo 'Deployment failed.'
-      }
+    success {
+      echo 'Déploiement réussi sur le cluster Docker Desktop Kubernetes !'
+    }
+    failure {
+      echo 'Le déploiement a échoué.'
+    }
   }
-
 }
