@@ -18,20 +18,18 @@ pipeline {
       }
     }
 
+/*
     stage('Build Docker Image') {
       steps {
         script {
-          // Correction ici : utilisation de env.dockerimagename
           dockerImage = docker.build("${env.dockerimagename}:latest")
         }
       }
     }
-
+*/
     stage('Deploy to Kubernetes') {
       steps {
         script {
-          // Assure-toi que ton agent Jenkins a accès à kubectl et au bon contexte
-          sh 'kubectl config use-context docker-desktop'
           sh 'kubectl apply -f deployment-k8s.yaml'
         }
       }
