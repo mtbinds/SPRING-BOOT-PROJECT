@@ -6,11 +6,13 @@ pipeline {
         checkout scm
     }
     }
+    /*
     stage('build'){
       steps{
         sh '''docker build -t react .'''
       }
     }
+    */
 
     /*
     stage('Push image'){
