@@ -1,60 +1,32 @@
 pipeline {
-  
   agent any
-
-  stages {
+  stages{
+    stage('Checkout code'){
+      steps{
+        checkout scm
+    }
+    }
+    stage('build'){
+      steps{
+        sh '''cd docker
+        docker build -t react .'''
+      }
+    }
 
     /*
-    stage('Clone and Checkout') {
-      steps {
-        git 'https://github.com/mtbinds/SPRING-BOOT-PROJECT.git'
+    stage('Push image'){
+          steps{
+            sh '''docker tag react <imagename>
+            docker push <imagename>'''
       }
     }
     */
-
-    stage('Compile') {
-      steps {
-        bat "mvn clean compile"
-      }
+    stage('Deploy'){
+      steps{
+        sh '''kubectl apply -f master-deployment.yaml
+              kubectl rollout restart deployment second-app-deployment
+        '''
     }
-    stage('Test') {
-      steps {
-        bat "mvn test"
-      }
-    }
-    stage('Package') {
-      steps {
-        bat "mvn package"
-      }
-    }
-    stage('Install') {
-      steps {
-        bat "mvn install"
-      }
-    }
-    stage('build docker image') {
-      steps {
-        bat 'docker build -t spring-crud-jenkins-pipeline:latest .'
-      }
-    }
-    
-    /*
-    stage('push docker image') {
-      steps {
-        script {
-          //withCredentials([string(credentialsId: 'dockerhub_token', variable: 'dockerhub_token')]) {
-          //bat 'docker login -u amitchavda00 -p ${dockerhub_token}'
-          bat 'docker push amitchavda00/spring-crud-jenkins-pipeline:latest'
-          //}
-        }
-      }
-    }
-    */
-
-    stage('deploy in kubernetes') {
-      steps {
-        bat 'kubectl apply -f user-api-service.yaml'
-      }
     }
   }
 }
