@@ -3,13 +3,11 @@ pipeline {
   agent any
 
   tools {
-    // Nom de l'installation Maven définie dans Jenkins
-    maven 'Maven'
+    maven 'Maven' // Assure-toi que ce nom correspond bien à l'installation Maven dans Jenkins
   }
 
   environment {
     dockerimagename = "spring-boot-k8s"
-    dockerImage = ""
   }
 
   stages {
@@ -23,7 +21,8 @@ pipeline {
     stage('Build Docker Image') {
       steps {
         script {
-          dockerImage = docker.build("${dockerimagename}:latest")
+          // Correction ici : utilisation de env.dockerimagename
+          dockerImage = docker.build("${env.dockerimagename}:latest")
         }
       }
     }
@@ -31,9 +30,8 @@ pipeline {
     stage('Deploy to Kubernetes') {
       steps {
         script {
-          // Vérifie que kubectl pointe vers le bon cluster
+          // Assure-toi que ton agent Jenkins a accès à kubectl et au bon contexte
           sh 'kubectl config use-context docker-desktop'
-          // Applique les ressources Kubernetes
           sh 'kubectl apply -f deployment-k8s.yaml'
         }
       }
